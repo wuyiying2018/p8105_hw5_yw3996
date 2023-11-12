@@ -46,3 +46,10 @@ homicide_clean_data=homicide_data|>
     Unsolved_Homicides = sum(disposition %in% c("Closed without arrest", "Open/No arrest")))
 ```
 
+Proportion test for Baltimore, MD
+```{r}
+baltimore_data <- filter(homicide_clean_data, city_state == "Baltimore, MD")
+baltimore_test <- prop.test(baltimore_data$Unsolved_Homicides, baltimore_data$Total_Homicides)
+baltimore_test |> broom::tidy()
+```
+
