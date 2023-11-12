@@ -79,3 +79,22 @@ ggplot(all_cities_test, aes(x=reorder(city_state, estimate), y=estimate)) +
   ggtitle("Proportion of Unsolved Homicides in Various Cities")
 ```
 
+## 2
+import data
+```{r}
+data_files <- tibble(list.files("./data")) |>
+  mutate(file_list = paste(list.files("./data")))
+```
+Creating functions to read multiple datasets in the list
+```{r,message=FALSE}
+read_files <- function(x) {
+  
+    data = read_csv(paste0("./data/", x))|>
+      mutate(file_names = x)
+}
+
+arm_dataset <- map_df(data_files$file_list, read_files)
+
+arm_dataset
+```
+
