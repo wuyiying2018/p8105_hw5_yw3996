@@ -125,6 +125,7 @@ clean_arm_dataset |>
        col = "Subject ID") +
   theme(plot.title = element_text(hjust = 0.5, face = "bold"))
 ```
+
 In the experimental group, subjects generally experienced an increase in arm measurements over the 8-week period, although the timing and extent of these changes varied among individuals. Conversely, in the control group, subjects' arm measurements fluctuated over time without any clear trend or significant alterations, in contrast to those in the experimental group. Notably, no individuals in the control group achieved arm measurements exceeding 5, whereas approximately half of the participants in the experimental group surpassed this value during the study.
 
 ## 3
@@ -151,37 +152,48 @@ simulation_results = map_dfr(mu_values, function(mu) {
 
 Plot: Proportion of times the null is rejected (power of the test)
 ```{r}
-power_plot = simulation_results |>
+# create power_results dataset
+power_results <- simulation_results |>
   group_by(mu) |>
-  summarize(power = mean(reject_null)) |>
+  summarise(power = mean(reject_null), 
+            avg_mu_hat = mean(estimate), 
+            avg_mu_hat_rejected = mean(estimate[reject_null]))
+
+#plotting
+power_plot = power_results |>
   ggplot(aes(x = mu, y = power)) +
-  geom_line() +
   geom_point() +
-  labs(title = "Power of the Test Across Different True Means", 
-       x = "True Mean (mu)", y = "Power")
+  geom_line() +
+  labs(title = "Power vs. True Mean", x = "True Mean (mu)", y = "Power")
 
 power_plot
 ```
 
-Plot 2: Average estimate of mu
+There's a positive relationship between effect size and power, with diminishing returns as the effect size becomes large. 
+As the true mean $\mu$ increases away from 0, the power of the test also increases. The power increases rapidly as $\mu$ moves from 0 to 2, showing a steep curve. The rate of increase in power slows down as $\mu$ becomes larger (around 4 and above). This relationship is consistent with statistical theory: larger effect sizes make it easier to detect a true effect, thus increasing the power of the test.
+
+Plot: Average estimate of mu
 ```{r}
-estimate_plot <- simulation_results |>
-  group_by(mu) |>
-  summarize(average_estimate = mean(estimate),
-            average_estimate_rejected = mean(estimate[reject_null], na.rm = TRUE)) |>
+estimate_plot <- power_results |>
   ggplot(aes(x = mu)) +
-  geom_line(aes(y = average_estimate, color = "Average Estimate")) +
-  geom_point(aes(y = average_estimate, color = "Average Estimate")) +
-  geom_line(aes(y = average_estimate_rejected, color = "Conditional Average Estimate")) +
-  geom_point(aes(y = average_estimate_rejected, color = "Conditional Average Estimate")) +
-  labs(title = "Average Estimate of Mu",
-       x = "True Mean (mu)", y = "Average Estimate") +
-  scale_color_manual(
-    values = c("Average Estimate" = "blue", "Conditional Average Estimate" = "red"),
-    labels = c("Average Estimate", "Conditional Average Estimate")
+  geom_point(aes(y = avg_mu_hat, color = "Average Estimate"), shape = 1) +  
+  geom_line(aes(y = avg_mu_hat, color = "Average Estimate")) +
+  geom_point(aes(y = avg_mu_hat_rejected, color = "Conditional Average Estimate"), shape = 2) +
+  geom_line(aes(y = avg_mu_hat_rejected, color = "Conditional Average Estimate"), linetype = "dashed") +
+  labs(
+    title = "Average Estimated Mean vs. True Mean",
+    x = "True Mean (mu)",
+    y = "Average Estimated Mean",
+    color = "mu_hat"
   ) +
+  scale_color_manual(
+    values = c("Average Estimate" = "blue", "Conditional Average Estimate" = "red")
+  ) +
+  theme_minimal() +
   theme(legend.position = "bottom")
 
 estimate_plot
+
 ```
 
+the sample average of $\hat{\mu}$ across tests for which the null is rejected is not approximately equal to the true value of $\mu$, particularly for smaller true mean values. This is because the rejection of the null hypothesis is partially driven by the magnitude of $\hat{\mu}$, leading to an overestimate of the true mean when the null is rejected. As the true mean increases, the conditional estimates approach the line $\hat\mu=\mu$, since larger true means are easier to detect and less subject to the extremes of sampling variability.
