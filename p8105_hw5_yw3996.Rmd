@@ -113,3 +113,16 @@ clean_arm_dataset =
 clean_arm_dataset
 ```
 
+spaghetti plot showing observations on each subject over time
+```{r}
+clean_arm_dataset |>
+  ggplot(aes(week, arm_value, color=subject_ID)) + 
+  geom_point(size = 0.2) + 
+  geom_line(aes(group = subject_ID), alpha=0.5) +
+  facet_grid(~file_names) +
+  labs(x = "Week", y = "Arm Value", 
+       title = "Arm Values on Each Subject over 8 Weeks in Two Groups",
+       col = "Subject ID") +
+  theme(plot.title = element_text(hjust = 0.5, face = "bold"))
+```
+In the experimental group, subjects generally experienced an increase in arm measurements over the 8-week period, although the timing and extent of these changes varied among individuals. Conversely, in the control group, subjects' arm measurements fluctuated over time without any clear trend or significant alterations, in contrast to those in the experimental group. Notably, no individuals in the control group achieved arm measurements exceeding 5, whereas approximately half of the participants in the experimental group surpassed this value during the study.
