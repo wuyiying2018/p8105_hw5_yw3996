@@ -68,3 +68,14 @@ all_cities_test=all_cities_test|>select(city_state, estimate, conf.low, conf.hig
 all_cities_test
 ```
 
+Create a plot that shows the estimates and CIs for each city
+```{r, fig.width = 10}
+ggplot(all_cities_test, aes(x=reorder(city_state, estimate), y=estimate)) +
+  geom_bar(stat="identity") +
+  geom_errorbar(aes(ymin=conf.low, ymax=conf.high), width=.2) +
+  coord_flip() +
+  xlab("City, State") +
+  ylab("Proportion of Unsolved Homicides") +
+  ggtitle("Proportion of Unsolved Homicides in Various Cities")
+```
+
