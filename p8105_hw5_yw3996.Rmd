@@ -132,13 +132,13 @@ Generate 5000 datasets from the model
 $$x\sim Normal[\mu,\sigma]$$
 ```{r}
 set.seed(8105) # For reproducibility
-n <- 30 # Sample size
-sigma <- 5 # Standard deviation
-mu_values <- 0:6 # True mean values
-alpha <- 0.05 # Significance level
-num_simulations <- 5000 # Number of simulations
+n = 30 # Sample size
+sigma = 5 # Standard deviation
+mu_values = 0:6 # True mean values
+alpha = 0.05 # Significance level
+num_simulations = 5000 # Number of simulations
 
-simulation_results <- map_dfr(mu_values, function(mu) {
+simulation_results = map_dfr(mu_values, function(mu) {
   tibble(
     mu = mu,
     simulation = map(1:num_simulations, ~ t.test(rnorm(n, mu, sigma))),
@@ -147,5 +147,18 @@ simulation_results <- map_dfr(mu_values, function(mu) {
     reject_null = p_value < alpha
   )
 })
+```
+
+Plot: Proportion of times the null is rejected (power of the test)
+```{r}
+power_plot = simulation_results |>
+  group_by(mu) |>
+  summarize(power = mean(reject_null)) |>
+  ggplot(aes(x = mu, y = power)) +
+  geom_line() +
+  geom_point() +
+  labs(title = "Power of the Test Across Different True Means", 
+       x = "True Mean (mu)", y = "Power")
+power_plot
 ```
 
