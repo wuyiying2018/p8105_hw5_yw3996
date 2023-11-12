@@ -6,6 +6,43 @@ output: github_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+
+knitr::opts_chunk$set(
+  fig.width = 6,
+  fig.asp = .6,
+  out.width = "90%"
+)
+
+theme_set(theme_minimal() + theme(legend.position = "bottom"))
+
+options(
+  ggplot2.continuous.colour = "viridis",
+  ggplot2.continuous.fill = "viridis"
+)
+
+scale_colour_discrete = scale_colour_viridis_d
+scale_fill_discrete = scale_fill_viridis_d
 ```
 
 ## 1
+Read data
+```{r,message=FALSE}
+urlfile = "https://raw.githubusercontent.com/washingtonpost/data-homicides/master/homicide-data.csv"
+
+homicide_data <- read_csv(url(urlfile))|>
+                  janitor::clean_names()
+
+```
+
+Prepare data
+```{r}
+homicide_clean_data=homicide_data|>
+  unite("city_state", city, state, sep = ", ") |>
+  group_by(city_state) |>
+  summarize(
+    Total_Homicides = n(),
+    Unsolved_Homicides = sum(disposition %in% c("Closed without arrest", "Open/No arrest")))
+```
+
