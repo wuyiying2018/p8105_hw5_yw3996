@@ -159,6 +159,29 @@ power_plot = simulation_results |>
   geom_point() +
   labs(title = "Power of the Test Across Different True Means", 
        x = "True Mean (mu)", y = "Power")
+
 power_plot
+```
+
+Plot 2: Average estimate of mu
+```{r}
+estimate_plot <- simulation_results |>
+  group_by(mu) |>
+  summarize(average_estimate = mean(estimate),
+            average_estimate_rejected = mean(estimate[reject_null], na.rm = TRUE)) |>
+  ggplot(aes(x = mu)) +
+  geom_line(aes(y = average_estimate, color = "Average Estimate")) +
+  geom_point(aes(y = average_estimate, color = "Average Estimate")) +
+  geom_line(aes(y = average_estimate_rejected, color = "Conditional Average Estimate")) +
+  geom_point(aes(y = average_estimate_rejected, color = "Conditional Average Estimate")) +
+  labs(title = "Average Estimate of Mu",
+       x = "True Mean (mu)", y = "Average Estimate") +
+  scale_color_manual(
+    values = c("Average Estimate" = "blue", "Conditional Average Estimate" = "red"),
+    labels = c("Average Estimate", "Conditional Average Estimate")
+  ) +
+  theme(legend.position = "bottom")
+
+estimate_plot
 ```
 
