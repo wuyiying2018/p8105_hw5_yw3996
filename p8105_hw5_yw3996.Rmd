@@ -38,7 +38,7 @@ homicide_data <- read_csv(url(urlfile))|>
 
 Prepare data
 ```{r}
-homicide_clean_data=homicide_data|>
+homicide_summary=homicide_data|>
   unite("city_state", city, state, sep = ", ") |>
   group_by(city_state) |>
   summarize(
@@ -48,8 +48,23 @@ homicide_clean_data=homicide_data|>
 
 Proportion test for Baltimore, MD
 ```{r}
-baltimore_data <- filter(homicide_clean_data, city_state == "Baltimore, MD")
+baltimore_data <- filter(homicide_summary, city_state == "Baltimore, MD")
 baltimore_test <- prop.test(baltimore_data$Unsolved_Homicides, baltimore_data$Total_Homicides)
 baltimore_test |> broom::tidy()
+```
+
+Proportion test for all cities
+```{r,message=FALSE,warning=FALSE}
+all_cities_test <- homicide_summary %>%
+  mutate(
+    test_result = map2(Unsolved_Homicides, Total_Homicides, ~prop.test(.x, .y)),
+    tidy_result = map(test_result, broom::tidy),  # Specify broom::tidy directly
+    city_state = city_state  # Preserve city_state in the final result
+  ) %>%
+  select(-test_result) %>%  # Remove the test_result column
+  unnest(tidy_result)
+
+all_cities_test=all_cities_test|>select(city_state, estimate, conf.low, conf.high)
+all_cities_test
 ```
 
