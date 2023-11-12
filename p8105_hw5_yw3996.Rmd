@@ -82,19 +82,34 @@ ggplot(all_cities_test, aes(x=reorder(city_state, estimate), y=estimate)) +
 ## 2
 import data
 ```{r}
-data_files <- tibble(list.files("./data")) |>
+data_files = tibble(list.files("./data")) |>
   mutate(file_list = paste(list.files("./data")))
 ```
 Creating functions to read multiple datasets in the list
 ```{r,message=FALSE}
-read_files <- function(x) {
+read_files = function(x) {
   
     data = read_csv(paste0("./data/", x))|>
       mutate(file_names = x)
 }
 
-arm_dataset <- map_df(data_files$file_list, read_files)
+arm_dataset = map_df(data_files$file_list, read_files)
 
 arm_dataset
+```
+Tidy the dataset
+```{r}
+clean_arm_dataset =
+  arm_dataset |>
+  janitor::clean_names() |>
+  gather(key = week, value = arm_value, week_1:week_8) |>
+  mutate(week = str_remove(week, "week_")) |>
+  mutate(subject_ID = as.integer(str_extract(file_names, "[0-9][0-9]"))) |>
+  mutate(file_names = ifelse(str_detect(file_names, "con") == TRUE,
+                             "Control", "Experiment")) |>
+  mutate(across(.cols = c(file_names, week, subject_ID), as.factor)) |>
+  relocate(file_names, subject_ID, arm_value)
+
+clean_arm_dataset
 ```
 
