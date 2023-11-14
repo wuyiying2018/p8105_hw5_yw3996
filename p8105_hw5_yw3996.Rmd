@@ -35,6 +35,10 @@ homicide_data <- read_csv(url(urlfile))|>
                   janitor::clean_names()
 
 ```
+Description: 
+
+This dataset has `r nrow(homicide_data)` observations and `r ncol(homicide_data)` variables.
+There are `r nrow(homicide_data)` number of observations of homicide cases in the 50 large U.S. cities and `r ncol(homicide_data)`  variables, including `r names(homicide_data)`. 
 
 Prepare data
 ```{r}
